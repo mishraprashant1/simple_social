@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "simple-social"
+version = "0.1.0"
+description = ""
+authors = ["Prashant Mishra <prashant.mishra@tophire.com>"]
+readme = "README.md"
+packages = [{include = "simple_social"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+django = "^4.2.4"
+djangorestframework = "^3.14.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
