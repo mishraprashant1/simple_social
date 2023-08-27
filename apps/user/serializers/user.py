@@ -3,7 +3,7 @@ from rest_framework.serializers import ModelSerializer
 from simple_social.models import User
 
 
-class UserSerializer(ModelSerializer):
+class UserSignupSerializer(ModelSerializer):
     confirm_password = serializers.CharField(style={'input_type': 'password'}, write_only=True)
 
     class Meta:
@@ -12,17 +12,10 @@ class UserSerializer(ModelSerializer):
                   'confirm_password']
         write_only_fields = ['password']
 
-    def save(self, **kwargs):
-        user = User(
-            username=self.validated_data['username'],
-            first_name=self.validated_data['first_name'],
-            last_name=self.validated_data['last_name'],
-            country_code=self.validated_data['country_code'],
-            phone_number=self.validated_data['phone_number'],
-            email=self.validated_data['email'],
-        )
-        password = self.validated_data['password']
-        user.set_password(password)
+    def create(self, validated_data):
+        validated_data.pop('confirm_password')
+        user = User(**validated_data)
+        user.set_password(validated_data['password'])
         user.save()
         return user
 
@@ -30,3 +23,10 @@ class UserSerializer(ModelSerializer):
         if attrs['password'] != attrs['confirm_password']:
             raise serializers.ValidationError({'password': 'Password fields didn\'t match'})
         return attrs
+
+
+class UserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ['id', 'password', 'last_login', 'is_superuser', 'is_staff', 'date_joined', 'is_active']
+        read_only_fields = ['username', 'email']

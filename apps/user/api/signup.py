@@ -1,5 +1,5 @@
 from rest_framework.generics import CreateAPIView
-from apps.user.serializers import UserSerializer
+from apps.user.serializers import UserSignupSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -14,7 +14,7 @@ def get_tokens_for_user(user):
 
 
 class SignUpView(CreateAPIView):
-    serializer_class = UserSerializer
+    serializer_class = UserSignupSerializer
     permission_classes = []
     authentication_classes = []
     throttle_classes = []
