@@ -19,6 +19,14 @@ class PostImage(SoftDeleteModel):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
     image = models.URLField()
 
+    @staticmethod
+    def update_post_image(post: Post, images: []):
+        ids_to_keep = []
+        for image in images:
+            obj, created = PostImage.objects.get_or_create(post=post, image=image)
+            ids_to_keep.append(obj.id)
+        PostImage.objects.filter(post=post).exclude(id__in=ids_to_keep).delete()
+
 
 class PostTags(SoftDeleteModel):
     class TypeChoices(models.TextChoices):
@@ -29,6 +37,14 @@ class PostTags(SoftDeleteModel):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='tags')
     tag = models.CharField(max_length=50)
     type = models.CharField(max_length=50, choices=TypeChoices.choices)
+
+    @staticmethod
+    def update_post_tags(post: Post, tags: []):
+        ids_to_keep = []
+        for tag in tags:
+            obj, created = PostTags.objects.get_or_create(post=post, tag=tag['tag'], type=tag['type'])
+            ids_to_keep.append(obj.id)
+        PostTags.objects.filter(post=post).exclude(id__in=ids_to_keep).delete()
 
 
 class PostLike(TimeStampedModel):

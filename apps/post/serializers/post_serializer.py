@@ -49,6 +49,19 @@ class PostSerializer(serializers.ModelSerializer):
             PostTags.objects.create(post=post, **tag)
         return post
 
+    def update(self, instance, validated_data):
+        images = validated_data.pop('images', None)
+        tags = validated_data.pop('tags', None)
+        instance.text_content = validated_data.get('text_content', instance.text_content)
+        instance.share_with = validated_data.get('share_with', instance.share_with)
+        instance.is_active = validated_data.get('is_active', instance.is_active)
+        instance.save()
+        if images is not None:
+            PostImage.update_post_image(instance, images)
+        if tags is not None:
+            PostTags.update_post_tags(instance, tags)
+        return instance
+
 
 class PostLikeSerializer(serializers.ModelSerializer):
     class Meta:
