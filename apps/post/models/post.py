@@ -27,6 +27,10 @@ class PostImage(SoftDeleteModel):
             ids_to_keep.append(obj.id)
         PostImage.objects.filter(post=post).exclude(id__in=ids_to_keep).delete()
 
+    @staticmethod
+    def handle_delete(post: Post):
+        PostImage.objects.filter(post=post).delete()
+
 
 class PostTags(SoftDeleteModel):
     class TypeChoices(models.TextChoices):
@@ -45,6 +49,10 @@ class PostTags(SoftDeleteModel):
             obj, created = PostTags.objects.get_or_create(post=post, tag=tag['tag'], type=tag['type'])
             ids_to_keep.append(obj.id)
         PostTags.objects.filter(post=post).exclude(id__in=ids_to_keep).delete()
+
+    @staticmethod
+    def handle_delete(post: Post):
+        PostTags.objects.filter(post=post).delete()
 
 
 class PostLike(TimeStampedModel):
