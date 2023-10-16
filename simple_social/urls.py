@@ -26,4 +26,5 @@ urlpatterns = [
 
     path('account/', include('apps.user.urls')),
     path('post/', include('apps.create_post.urls')),
+    path('retrieve-post/', include('apps.retrieve_post.urls')),
 ]
