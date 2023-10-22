@@ -1,5 +1,5 @@
 from django.db import models
-
+from uuid import uuid4
 from apps.core.models.base import TimeStampedModel, SoftDeleteModel
 
 
@@ -9,6 +9,7 @@ class Post(SoftDeleteModel):
         FRIENDS = 'FRIENDS', 'Friends'
         ONLY_ME = 'ONLY_ME', 'Only Me'
 
+    uuid = models.UUIDField(editable=False, default=uuid4, db_index=True, unique=True)
     user = models.ForeignKey('simple_social.User', on_delete=models.CASCADE, related_name='posts')
     text_content = models.TextField()
     share_with = models.CharField(max_length=50, choices=ShareWithChoices.choices, default=ShareWithChoices.FRIENDS)
