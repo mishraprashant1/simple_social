@@ -13,6 +13,7 @@ import environ
 import os
 from pathlib import Path
 from datetime import timedelta
+from neomodel import config
 
 env = environ.Env(
     DEBUG=(bool, False)
@@ -47,11 +48,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'drf_spectacular',
+    'django_neomodel',
     'simple_social',
     'apps.core',
     'apps.user',
     'apps.post',
     'apps.create_post',
+    'apps.retrieve_post',
+    'apps.relations',
 ]
 
 MIDDLEWARE = [
@@ -96,7 +100,6 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'A Social Media API',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
 }
 
 
@@ -104,6 +107,7 @@ SPECTACULAR_SETTINGS = {
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = dict(default=env.db_url('DATABASE_URL', engine='django.db.backends.postgresql'))
+config.DATABASE_URL = env.str('NEO4J_BOLT_URL')
 
 
 # Password validation
@@ -137,7 +141,7 @@ SIMPLE_JWT = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 
 USE_I18N = True
 
