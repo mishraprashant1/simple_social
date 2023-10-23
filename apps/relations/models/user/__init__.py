@@ -1,7 +1,5 @@
 from neomodel import StructuredNode, StringProperty, RelationshipTo, Relationship, BooleanProperty, DateTimeProperty, \
     EmailProperty
-from apps.relations.models.pages import Page
-from apps.relations.models.posts import Posts
 
 
 class User(StructuredNode):
@@ -15,7 +13,7 @@ class User(StructuredNode):
     is_staff = BooleanProperty(default=False)
     is_superuser = BooleanProperty(default=False)
     date_joined = DateTimeProperty(default_now=True)
-    friends = Relationship('User', 'FRIENDS')
-    posts = RelationshipTo(Posts, 'POSTS')
-    likes = Relationship(Posts, 'LIKES')
-    page_follows = RelationshipTo(Page, 'FOLLOWS_PAGE')
+    friends = Relationship('apps.relations.models.user.User', 'FRIENDS')
+    posts = RelationshipTo('apps.relations.models.posts.Posts', 'POSTS')
+    likes = Relationship('apps.relations.models.posts.Posts', 'LIKES')
+    page_follows = RelationshipTo('apps.relations.models.pages.Page', 'FOLLOWS_PAGE')

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from apps.post.models import Post, PostImage, PostLike, PostComment, PostTags
+from apps.relations.core.posts.sync_post import SyncPost
 
 
 class PostImageSerializer(serializers.ModelSerializer):
@@ -47,6 +48,7 @@ class PostSerializer(serializers.ModelSerializer):
             PostImage.objects.create(post=post, **image)
         for tag in tags:
             PostTags.objects.create(post=post, **tag)
+        SyncPost(post).sync_post()
         return post
 
     def update(self, instance, validated_data):
@@ -60,6 +62,7 @@ class PostSerializer(serializers.ModelSerializer):
             PostImage.update_post_image(instance, images)
         if tags is not None:
             PostTags.update_post_tags(instance, tags)
+        SyncPost(instance).sync_post()
         return instance
 
 

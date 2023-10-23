@@ -17,6 +17,7 @@ class Post(SoftDeleteModel):
 
 
 class PostImage(SoftDeleteModel):
+    uuid = models.UUIDField(editable=False, default=uuid4, db_index=True, unique=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
     image = models.URLField()
 
@@ -39,6 +40,7 @@ class PostTags(SoftDeleteModel):
         MENTION = 'MENTION', 'Mention'
         LOCATION = 'LOCATION', 'Location'
 
+    uuid = models.UUIDField(editable=False, default=uuid4, db_index=True, unique=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='tags')
     tag = models.CharField(max_length=50)
     type = models.CharField(max_length=50, choices=TypeChoices.choices)
