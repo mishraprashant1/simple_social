@@ -14,3 +14,13 @@ services:
       - ./neo4j/logs:/logs
       - ./neo4j/conf:/conf
       - ./neo4j/plugins:/plugins
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_USER: $PG_USER
+      POSTGRES_PASSWORD: $PG_PASSWORD
+      POSTGRES_DB: $PG_NAME
+    ports:
+      - "5433:5432"

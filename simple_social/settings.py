@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 from datetime import timedelta
 from neomodel import config
+import dj_database_url
 
 env = environ.Env(
     DEBUG=(bool, False)
@@ -105,8 +106,9 @@ SPECTACULAR_SETTINGS = {
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-DATABASES = dict(default=env.db_url('DATABASE_URL', engine='django.db.backends.postgresql'))
+DATABASES = dict(
+    default=dj_database_url.config(default=env.str('PG_URL')),
+)
 config.DATABASE_URL = env.str('NEO4J_BOLT_URL')
 
 
