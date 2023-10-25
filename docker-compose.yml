@@ -1,6 +1,20 @@
 version: "1"
 
 services:
+#  web:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - '8000:8000'
+#    restart: on-failure
+#    depends_on:
+#      - postgres
+#      - redis
+#      - neo4j
+#      - celery
+#    volumes:
+#      - .:/app
   neo4j:
     image: neo4j:4.4-community
     ports:
@@ -24,3 +38,24 @@ services:
       POSTGRES_DB: $PG_NAME
     ports:
       - "5433:5432"
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    command: [ "redis-server" ]
+
+  celery:
+    container_name: celery
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: poetry run celery -A simple_social worker --loglevel=info
+    volumes:
+      - .:/app
+    restart: on-failure
+    depends_on:
+      - neo4j
+      - postgres
+      - redis
