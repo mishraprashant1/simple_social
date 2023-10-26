@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from uuid import uuid4
+from apps.relations.celery.update_user import update_user_async
 
 
 class User(AbstractUser):
@@ -13,3 +14,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.get_full_name()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        update_user_async.delay(str(self.uuid))
