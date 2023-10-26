@@ -17,6 +17,7 @@ services:
 #      - .:/app
   neo4j:
     image: neo4j:4.4-community
+    container_name: neo4j
     ports:
       - 7474:7474
       - 7687:7687
@@ -48,6 +49,8 @@ services:
 
   celery:
     container_name: celery
+    env_file:
+      - example.env
     build:
       context: .
       dockerfile: Dockerfile
