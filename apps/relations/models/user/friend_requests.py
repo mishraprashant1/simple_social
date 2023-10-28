@@ -29,7 +29,10 @@ class FriendRequest(TimeStampedModel):
     action_taken = models.CharField(choices=ActionTaken.choices, max_length=20, null=True, blank=True)
     action_taken_on = models.DateTimeField(null=True, blank=True)
 
-    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    unfriend = models.BooleanField(default=False)
+    unfriend_on = models.DateTimeField(null=True, blank=True)
+
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4, db_index=True)
 
     def __str__(self):
         return f'Request Sent from {self.from_user} to {self.to_user}'
