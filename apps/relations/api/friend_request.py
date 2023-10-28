@@ -5,7 +5,7 @@ from rest_framework import status
 from apps.relations.models import FriendRequest
 from simple_social.models import User
 from django.utils import timezone
-from apps.relations.celery.friend_request import add_friend
+from apps.relations.celery.friend_request import add_friend, remove_friend
 from django.db.models import Q
 
 
@@ -103,6 +103,28 @@ class RejectFriendRequestView(generics.CreateAPIView):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
         resp = handle_friend_request_v2(fr, FriendRequest.ActionTaken.REJECTED)
         if resp:
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class UnfriendView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        to_user = User.objects.get(uuid=kwargs['to_user_uuid'])
+        if to_user == request.user:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        user1 = min(request.user.id, to_user.id)
+        user2 = max(request.user.id, to_user.id)
+        if FriendRequest.objects.filter(user1=user1, user2=user2, action_taken=FriendRequest.ActionTaken.ACCEPTED,
+                                        unfriend=False).exists():
+            fr = FriendRequest.objects.get(user1=user1, user2=user2, action_taken=FriendRequest.ActionTaken.ACCEPTED,
+                                           unfriend=False)
+            fr.unfriend = True
+            fr.unfriend_on = timezone.now()
+            fr.save()
+            remove_friend.delay(fr.from_user.uuid, fr.to_user.uuid)
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
