@@ -15,6 +15,7 @@ from pathlib import Path
 from datetime import timedelta
 from neomodel import config
 import dj_database_url
+from redis import Redis
 
 env = environ.Env(
     DEBUG=(bool, False)
@@ -110,6 +111,7 @@ DATABASES = dict(
     default=dj_database_url.config(default=env.str('PG_URL')),
 )
 config.DATABASE_URL = env.str('NEO4J_BOLT_URL')
+REDIS_CONNECTION = Redis(host=env.str("REDIS_URL"), port=env.str("REDIS_PORT"), db=0)
 
 CELERY_BROKER_URL = env.str('CELERY_BROKER_URL')
 CELERY_ACCEPT_CONTENT = ['application/json']
