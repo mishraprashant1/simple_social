@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from uuid import uuid4
 from apps.relations.celery.update_user import update_user_async
+from django.conf import settings
 
 
 class User(AbstractUser):
@@ -18,3 +19,8 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         update_user_async.delay(str(self.uuid))
+
+    def get_friend_recommendations(self):
+        redis_conn = settings.REDIS_CONNECTION
+        recommendations = redis_conn.lrange(f"recommendation:{self.uuid}", 0, -1)
+        return recommendations
