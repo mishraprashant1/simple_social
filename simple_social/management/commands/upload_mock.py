@@ -6,7 +6,12 @@ from django.utils.text import slugify
 import random
 from apps.relations.models import FriendRequest
 from apps.relations.api.friend_request import handle_create_friend_request
+from apps.relations.core.posts.sync_post import SyncPost
 from apps.relations.celery.friend_request import add_friend
+from apps.post.models import Post, PostImage
+from neomodel import DoesNotExist
+from apps.relations.core.user.update_user import update_user
+import ast
 
 
 def create_mock_user():
@@ -66,6 +71,34 @@ def accept_reject_cancel_friend_requests():
             add_friend.delay(request.from_user.uuid, request.to_user.uuid)
 
 
+def create_mock_posts():
+    posts = pd.read_csv('./simple_social/management/commands/dumps/mock_posts.csv')
+    all_users = User.objects.values_list('id', flat=True)
+    share_with = ['PUBLIC', 'FRIENDS']
+    for row in posts.iterrows():
+        user = random.choice(all_users)
+        post = Post.objects.create(
+            user_id=user,
+            text_content=row[1]['text_content'],
+            created_at=row[1]['posted_at'],
+            share_with=random.choice(share_with),
+        )
+        post.save()
+        images = ast.literal_eval(row[1]['images'])
+        for image in images:
+            post_image = PostImage.objects.create(
+                post_id=post.id,
+                image=image,
+            )
+            post_image.save()
+        try:
+            SyncPost(post).sync_post()
+        except DoesNotExist as e:
+            print(f"Error syncing post {post.id}: {e}")
+            update_user(post.user)
+            SyncPost(post).sync_post()
+
+
 class Command(BaseCommand):
     help = "Create complete mock data for the app"
 
@@ -76,3 +109,5 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Successfully created new mock friendships'))
         accept_reject_cancel_friend_requests()
         self.stdout.write(self.style.SUCCESS('Successfully accepted/rejected/cancelled friend requests'))
+        create_mock_posts()
+        self.stdout.write(self.style.SUCCESS('Successfully created new mock posts'))

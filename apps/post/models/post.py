@@ -19,7 +19,7 @@ class Post(SoftDeleteModel):
 class PostImage(SoftDeleteModel):
     uuid = models.UUIDField(editable=False, default=uuid4, db_index=True, unique=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
-    image = models.URLField()
+    image = models.URLField(max_length=500)
 
     @staticmethod
     def update_post_image(post: Post, images: []):
