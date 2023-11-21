@@ -1,13 +1,15 @@
 from rest_framework import serializers
 from apps.post.models import Post, PostImage, PostLike, PostComment, PostTags
 from apps.relations.core.posts.sync_post import SyncPost
+from apps.post.celery.timeline import add_to_timeline, remove_from_timeline
 
 
 class PostImageSerializer(serializers.ModelSerializer):
+    post_uuid = serializers.SerializerMethodField()
+
     class Meta:
         model = PostImage
-        fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at', 'deleted_at', 'post')
+        fields = ['image', 'post_uuid']
 
     def create(self, validated_data):
         post_image = PostImage()
@@ -15,12 +17,16 @@ class PostImageSerializer(serializers.ModelSerializer):
         post_image.image = validated_data['image']
         post_image.save()
 
+    def get_post_uuid(self, obj):
+        return obj.post.uuid
+
 
 class PostTagsSerializer(serializers.ModelSerializer):
+    post_uuid = serializers.SerializerMethodField()
+
     class Meta:
         model = PostTags
-        fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at', 'deleted_at', 'post')
+        fields = ['tag', 'type', 'post_uuid']
 
     def create(self, validated_data):
         post_tags = PostTags()
@@ -28,6 +34,9 @@ class PostTagsSerializer(serializers.ModelSerializer):
         post_tags.tag = validated_data['tag']
         post_tags.type = validated_data['type']
         post_tags.save()
+
+    def get_post_uuid(self, obj):
+        return obj.post.uuid
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -49,20 +58,44 @@ class PostSerializer(serializers.ModelSerializer):
         for tag in tags:
             PostTags.objects.create(post=post, **tag)
         SyncPost(post).sync_post()
+        if post.share_with == Post.ShareWithChoices.PUBLIC and post.is_active:
+            add_to_timeline.delay(post.uuid)
         return post
 
     def update(self, instance, validated_data):
+        did_share_with_change = False
+        old_share_with = instance.share_with
+        new_share_with = validated_data.get('share_with', instance.share_with)
+        if old_share_with != new_share_with:
+            did_share_with_change = True
+
+        post_deactivated = False
+        if instance.is_active and not validated_data.get('is_active', instance.is_active):
+            post_deactivated = True
+
+        post_active = False
+        if not instance.is_active and validated_data.get('is_active', instance.is_active):
+            post_active = True
+
         images = validated_data.pop('images', None)
         tags = validated_data.pop('tags', None)
         instance.text_content = validated_data.get('text_content', instance.text_content)
         instance.share_with = validated_data.get('share_with', instance.share_with)
         instance.is_active = validated_data.get('is_active', instance.is_active)
         instance.save()
+
         if images is not None:
+            images = [i['image'] for i in images]
             PostImage.update_post_image(instance, images)
         if tags is not None:
             PostTags.update_post_tags(instance, tags)
         SyncPost(instance).sync_post()
+
+        if (did_share_with_change and old_share_with == Post.ShareWithChoices.ONLY_ME) or post_active:
+            add_to_timeline.delay(str(instance.uuid))
+        elif (did_share_with_change and new_share_with == Post.ShareWithChoices.ONLY_ME) or post_deactivated:
+            remove_from_timeline.delay(str(instance.uuid))
+
         return instance
 
 

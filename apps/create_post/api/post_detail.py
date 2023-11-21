@@ -10,6 +10,7 @@ class PostDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
     queryset = Post.objects.all()
+    lookup_field = 'uuid'
 
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
