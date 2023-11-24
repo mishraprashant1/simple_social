@@ -29,6 +29,19 @@ class TimelineManager:
         self.redis_conn.zrem(f"timeline:{str(user.uuid)}", str(self.post.uuid))
 
 
+class GetTimelinePosts:
+    def __init__(self):
+        self.redis_conn = settings.REDIS_CONNECTION
+
+    def get_posts(self, user_uuid):
+        posts = self.redis_conn.zrange(f"timeline:{str(user_uuid)}", 0, -1)
+        posts = [post.decode('utf-8') for post in posts]
+        return posts
+
+    def get_post_count(self, user_uuid):
+        return self.redis_conn.zcard(f"timeline:{str(user_uuid)}")
+
+
 class MyTimelineManager:
     def __init__(self, post: Post = None):
         self.post = post
@@ -46,3 +59,8 @@ class MyTimelineManager:
         for post in posts:
             self.redis_conn.zadd(f"my_timeline:{str(user.uuid)}",
                                  {str(post.uuid): post.created_at.timestamp()})
+
+    def get_posts(self, user_uuid):
+        posts = self.redis_conn.zrange(f"my_timeline:{str(user_uuid)}", 0, -1)
+        posts = [post.decode('utf-8') for post in posts]
+        return posts
