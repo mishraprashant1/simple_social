@@ -7,6 +7,8 @@ from simple_social.models import User
 from django.utils import timezone
 from apps.relations.celery.friend_request import add_friend, remove_friend
 from django.db.models import Q
+from apps.post.celery.timeline import sync_post_between_users
+from apps.relations.serializers.friend_request import ReceivedFriendRequestSerializer, SentFriendRequestSerializer
 
 
 def handle_create_friend_request(from_user, to_user):
@@ -88,6 +90,7 @@ class AcceptFriendRequestView(generics.CreateAPIView):
         resp = handle_friend_request_v2(fr, FriendRequest.ActionTaken.ACCEPTED)
         if resp:
             add_friend.delay(fr.from_user.uuid, fr.to_user.uuid)
+            sync_post_between_users.delay(fr.from_user.uuid, fr.to_user.uuid)
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -125,6 +128,23 @@ class UnfriendView(generics.CreateAPIView):
             fr.unfriend_on = timezone.now()
             fr.save()
             remove_friend.delay(fr.from_user.uuid, fr.to_user.uuid)
+            sync_post_between_users.delay(fr.from_user.uuid, fr.to_user.uuid, action='REMOVE')
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class FriendRequestReceived(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ReceivedFriendRequestSerializer
+
+    def get_queryset(self):
+        return FriendRequest.objects.filter(to_user=self.request.user, action_taken__isnull=True)
+
+
+class FriendRequestSent(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = SentFriendRequestSerializer
+
+    def get_queryset(self):
+        return FriendRequest.objects.filter(from_user=self.request.user, action_taken__isnull=True)

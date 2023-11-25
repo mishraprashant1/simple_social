@@ -1,6 +1,7 @@
 from django.urls import path
 from apps.relations.api.friend_request import (SendFriendRequestView, CancelFriendRequestView, AcceptFriendRequestView,
-                                               RejectFriendRequestView, UnfriendView)
+                                               RejectFriendRequestView, UnfriendView, FriendRequestReceived,
+                                               FriendRequestSent)
 from apps.relations.api.friend_recommendation import FriendRecommendationView
 
 urlpatterns = [
@@ -16,4 +17,8 @@ urlpatterns = [
          name='unfriend_user'),
     path('api/friend_recommendations', FriendRecommendationView.as_view(),
          name='friend_recommendations'),
+    path('api/friend_requests_received', FriendRequestReceived.as_view(),
+         name='friend_requests_received'),
+    path('api/friend_requests_sent', FriendRequestSent.as_view(),
+         name='friend_requests_sent'),
 ]
