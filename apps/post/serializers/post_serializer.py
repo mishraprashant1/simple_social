@@ -2,6 +2,7 @@ from rest_framework import serializers
 from apps.post.models import Post, PostImage, PostLike, PostComment, PostTags
 from apps.relations.core.posts.sync_post import SyncPost
 from apps.post.celery.timeline import add_to_timeline, remove_from_timeline
+from apps.relations.celery.update_post import update_post_async
 
 
 class PostImageSerializer(serializers.ModelSerializer):
@@ -57,7 +58,7 @@ class PostSerializer(serializers.ModelSerializer):
             PostImage.objects.create(post=post, **image)
         for tag in tags:
             PostTags.objects.create(post=post, **tag)
-        SyncPost(post).sync_post()
+        update_post_async.delay(post.uuid)
         if post.share_with == Post.ShareWithChoices.PUBLIC and post.is_active:
             add_to_timeline.delay(post.uuid)
         return post
@@ -89,7 +90,7 @@ class PostSerializer(serializers.ModelSerializer):
             PostImage.update_post_image(instance, images)
         if tags is not None:
             PostTags.update_post_tags(instance, tags)
-        SyncPost(instance).sync_post()
+        update_post_async.delay(instance.uuid)
 
         if (did_share_with_change and old_share_with == Post.ShareWithChoices.ONLY_ME) or post_active:
             add_to_timeline.delay(str(instance.uuid))
