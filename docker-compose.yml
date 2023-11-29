@@ -62,3 +62,19 @@ services:
       - neo4j
       - postgres
       - redis
+
+  celery-beat:
+    container_name: celery-beat
+    env_file:
+      - example.env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: poetry run celery -A simple_social beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/app
+    restart: on-failure
+    depends_on:
+      - neo4j
+      - postgres
+      - redis
