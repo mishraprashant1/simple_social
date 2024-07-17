@@ -20,6 +20,7 @@ celery = "^5.3.4"
 redis = "^5.0.1"
 pandas = "^2.1.2"
 django-celery-beat = "^2.5.0"
+gunicorn = "^22.0.0"
 
 
 [build-system]
