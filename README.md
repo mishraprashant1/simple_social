@@ -131,7 +131,7 @@ The application manages friendships using a `Neo4J` database.
 
 #### Send a Friend request
 
-- Endpoint: `/relations/api/send_friend_requests/{uuid}`
+- Endpoint: `/relations/api/send_friend_requests/{uuid}/`
 - Method: `POST`
 - This API endpoint allows a user to send a friend request.
 
@@ -143,24 +143,36 @@ The application manages friendships using a `Neo4J` database.
 
 #### Cancel a Friend request
 
-- Endpoint: `/relations/api/cancel_friend_requests/{uuid}`
+- Endpoint: `/relations/api/cancel_friend_requests/{uuid}/`
 - Method: `DELETE`
 - This API endpoint allows a user to cancel a sent friend request.
 
 
 #### Reject a Friend request
 
-- Endpoint: `/relations/api/reject_friend_requests/{uuid}`
+- Endpoint: `/relations/api/reject_friend_requests/{uuid}/`
 - Method: `POST`
 - This API endpoint allows a user to reject a friend request.
 
 #### Unfriend a user 
 
-- Endpoint: `/relations/api/unfriend/{uuid}`
+- Endpoint: `/relations/api/unfriend/{uuid}/`
 - Method: `POST`
 - This API endpoint allows a user to unfriend a user who is already a friend.
 
-### 3. Friend Recommendations
+#### Get Sent Friend Requests
+
+- Endpoint: `/relations/api/friend_requests_sent`
+- Method: `GET`
+- This API endpoint allows a user to retrieve the friend requests they have sent.
+
+#### Get Received Friend Requests
+
+- Endpoint: `/relations/api/friend_requests_received/`
+- Method: `GET`
+- This API endpoint allows a user to retrieve the friend requests they have received.
+
+### 4. Friend Recommendations
 
 The application provides friend recommendations, which are generally friends of friends. 
 
@@ -168,110 +180,56 @@ These recommendations are pre-calculated daily and stored in a `Redis` cache.
 
 #### Get Friend Recommendations
 
-- Endpoint: `/relations/api/unfriend/{uuid}`
-- Method: `POST`
-- This API endpoint allows a user to unfriend a user who is already a friend.
+- Endpoint: `/relations/api/friend_recommendations/`
+- Method: `GET`
+- This API endpoint allows a user to retrieve friend recommendations.
 
+### 5. Timeline
 
+The user's timeline is generated and calculated daily, then stored in a Redis cache.
 
+#### Get User Timeline
 
+- Endpoint: `/retrieve-post/api/timeline/`
+- Method: `GET`
+- This API endpoint allows a user to retrieve their timeline.
 
+#### Get User's Posts
 
+- Endpoint: `/retrieve-post/api/post_by_user/{uuid}/`
+- Method: `GET`
+- This API endpoint allows a user to retrieve the posts of a specific user.
 
+## 💻 Tech Stack
 
+Backend: `Python` `Django` `Django REST Framework`
 
+Authentication: `JWT`
 
+Database: `PostgreSQL`
 
+Graph Database: `Neo4J`
 
+Cache: `Redis`
 
-
-
-
-
-
-
-
-
-
-
+Async Processing: `Celery`
 
 ## 🚀 Usage
 
-Make sure you have [npx](https://www.npmjs.com/package/npx) installed (`npx` is shipped by default since npm `5.2.0`)
+Detailed API documentationis provided via a dedicated API documentation tool `Swagger`. 
 
-Just run the following command at the root of your project and answer questions:
+Refer to the documentation for specific endpoint details, request parameters, and response formats [here](http://localhost:8000/api/schema/swagger-ui/#/).
 
-```sh
-npx readme-md-generator
-```
+You can use tools like curl or Postman to interact with the APIs.
 
-Or use default values for all questions (`-y`):
+## 🔥 Contributing
 
-```sh
-npx readme-md-generator -y
-```
+Contributions are welcome! Please open an issue or submit a pull request for any changes or improvements.
 
-Use your own `ejs` README template (`-p`):
+## 👨🏻‍💻 Author
 
-```sh
-npx readme-md-generator -p path/to/my/own/template.md
-```
+👤 **Prashant Mishra**
 
-You can find [ejs README template examples here](https://github.com/kefranabg/readme-md-generator/tree/master/templates).
-
-## Code Contributors
-
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
-<a href="https://github.com/kefranabg/readme-md-generator/graphs/contributors"><img src="https://opencollective.com/readme-md-generator/contributors.svg?width=890&button=false" /></a>
-
-## Financial Contributors
-
-Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/readme-md-generator/contribute)]
-
-### Individuals
-
-<a href="https://opencollective.com/readme-md-generator"><img src="https://opencollective.com/readme-md-generator/individuals.svg?width=890"></a>
-
-### Organizations
-
-Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/readme-md-generator/contribute)]
-<a href="https://opencollective.com/readme-md-generator/organization/0/website"><img src="https://opencollective.com/readme-md-generator/organization/0/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/1/website"><img src="https://opencollective.com/readme-md-generator/organization/1/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/2/website"><img src="https://opencollective.com/readme-md-generator/organization/2/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/3/website"><img src="https://opencollective.com/readme-md-generator/organization/3/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/4/website"><img src="https://opencollective.com/readme-md-generator/organization/4/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/5/website"><img src="https://opencollective.com/readme-md-generator/organization/5/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/6/website"><img src="https://opencollective.com/readme-md-generator/organization/6/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/7/website"><img src="https://opencollective.com/readme-md-generator/organization/7/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/8/website"><img src="https://opencollective.com/readme-md-generator/organization/8/avatar.svg"></a>
-<a href="https://opencollective.com/readme-md-generator/organization/9/website"><img src="https://opencollective.com/readme-md-generator/organization/9/avatar.svg"></a>
-
-## 🤝 Contributing
-
-Contributions, issues and feature requests are welcome.<br />
-Feel free to check [issues page](https://github.com/kefranabg/readme-md-generator/issues) if you want to contribute.<br />
-[Check the contributing guide](./CONTRIBUTING.md).<br />
-
-## Author
-
-👤 **Franck Abgrall**
-
-- Twitter: [@FranckAbgrall](https://twitter.com/FranckAbgrall)
-- Github: [@kefranabg](https://github.com/kefranabg)
-
-## Show your support
-
-Please ⭐️ this repository if this project helped you!
-
-<a href="https://www.patreon.com/FranckAbgrall">
-  <img src="https://c5.patreon.com/external/logo/become_a_patron_button@2x.png" width="160">
-</a>
-
-## 📝 License
-
-Copyright © 2019 [Franck Abgrall](https://github.com/kefranabg).<br />
-This project is [MIT](https://github.com/kefranabg/readme-md-generator/blob/master/LICENSE) licensed.
-
----
-
-_This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_
+- LinkedIn: [@prashant-manoj-mishra](https://www.linkedin.com/in/prashant-manoj-mishra/)
+- Github: [@mishraprashant1](https://github.com/mishraprashant1)
+- Twitter: [@iamjunooo](https://twitter.com/iamjunooo)
