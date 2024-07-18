@@ -24,8 +24,6 @@ docker compose -f docker-compose.yml up
 
 You backend should be up and accessible from [here](http://localhost:8000/api/schema/swagger-ui/#/).
 
-# Social Media Mockup Backend
-
 ## Features
 
 ### 1. User Authentication
